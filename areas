@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulação de Teste Vocacional de Psicologia</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bgA:#fff7fb; --bgB:#eef2ff; --ink:#111827; --muted:#6b7280;
+    --accent:#7c3aed; --accent2:#2563eb; --ok:#10b981; --warn:#ef4444;
+    --card:#ffffff; --line:rgba(17,24,39,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+       background:linear-gradient(135deg,var(--bgA),var(--bgB)); color:var(--ink);}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{width:100%;max-width:980px;background:var(--card);border:1px solid var(--line);
+        border-radius:20px;box-shadow:0 12px 32px rgba(17,24,39,.08);padding:20px}
+  header{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+  h1{margin:0;font-size:22px}
+  .subtitle{font-size:13px;color:var(--muted)}
+  .disclaimer{max-width:380px;text-align:right}
+  .disclaimer .title{font-weight:800;color:var(--warn);font-size:12px}
+  .disclaimer p{margin:4px 0 0;color:var(--muted);font-size:12px}
+  .pill{display:inline-flex;gap:6px;align-items:center;background:rgba(124,58,237,.08);
+        border:1px solid rgba(124,58,237,.18); border-radius:999px;padding:6px 10px;font-size:12px}
+  .progressRow{display:flex;justify-content:space-between;align-items:center;margin:14px 0;color:var(--muted);font-size:13px}
+  .bar{height:8px;border-radius:999px;background:#e5e7eb;overflow:hidden}
+  .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .questionCard{background:linear-gradient(180deg,#fff, #f8fafc);padding:16px;border-radius:14px;border:1px solid var(--line)}
+  .qTitle{font-size:17px;margin:0 0 10px}
+  .options{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:720px){.options{grid-template-columns:repeat(2,1fr)}}
+  .opt{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:12px;background:#fff;
+       border:1px solid var(--line);cursor:pointer;transition:transform .08s,box-shadow .12s}
+  .opt:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(37,99,235,.10)}
+  .opt input{margin-top:2px;accent-color:var(--accent)}
+  .controls{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+  .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer}
+  .btnPrimary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:none;
+              box-shadow:0 8px 22px rgba(124,58,237,.22)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .note{font-size:12px;color:var(--muted);margin-top:8px}
+  .result{display:none}
+  .result .lead{font-size:18px;font-weight:800;margin:0 0 6px}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:760px){.grid{grid-template-columns:2fr 1fr}}
+  .rank{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-size:12px;
+         background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.18)}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+  .stat .n{font-size:20px;font-weight:800}
+  footer{margin-top:14px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .tools{display:flex;gap:8px;flex-wrap:wrap}
+  .ghost{background:#fff;border:1px dashed var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="card" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Teste Vocacional — Áreas da Psicologia</h1>
+        <div class="subtitle">Estética jovem e acadêmica • 20 perguntas • Resultado com top 3 áreas</div>
+        <div class="pill" aria-live="polite">🧭 Simulação acadêmica</div>
+      </div>
+      <div class="disclaimer">
+        <div class="title">Aviso importante</div>
+        <p>Este é um instrumento <strong>simulado para fins de apresentação e estudo</strong>. <strong>Não substitui</strong> avaliação psicológica ou orientação profissional feita por psicólogo(a).</p>
+      </div>
+    </header>
+
+    <section id="quiz">
+      <div class="progressRow">
+        <div id="progressText">Pergunta 1 de 20</div>
+        <div style="flex:1;margin:0 12px" class="bar" aria-hidden="true"><span id="bar"></span></div>
+        <div id="percentText">5%</div>
+      </div>
+
+      <div class="questionCard" id="questionCard">
+        <h2 class="qTitle" id="qText">Carregando…</h2>
+        <div class="options" id="options"></div>
+
+        <div class="controls">
+          <button class="btn" id="prevBtn">Anterior</button>
+          <div class="tools">
+            <button class="btn ghost" id="skipBtn">Pular</button>
+            <button class="btn" id="partialBtn">Enviar parcial</button>
+            <button class="btn btnPrimary" id="nextBtn">Próxima</button>
+          </div>
+        </div>
+        <div class="note">Dica: assinale a alternativa que mais se aproxima de você. Não há respostas “certas”.</div>
+      </div>
+    </section>
+
+    <section id="result" class="result" aria-live="polite">
+      <div class="grid">
+        <div class="rank">
+          <p class="lead">Seu Top 3 em Psicologia</p>
+          <ol id="topList"></ol>
+          <div id="topExplain" style="margin-top:8px"></div>
+          <div class="tools" style="margin-top:10px">
+            <button class="btn" id="restartBtn">Refazer</button>
+            <button class="btn btnPrimary" id="printBtn">Imprimir / PDF</button>
+            <button class="btn" id="downloadBtn">Baixar este site (.html)</button>
+          </div>
+        </div>
+        <div>
+          <div class="stat"><div>Questões respondidas</div><div class="n" id="answeredN">0</div></div>
+          <div class="stat" style="margin-top:10px"><div>Diversidade de áreas</div><div class="n" id="coveredN">0</div></div>
+        </div>
+      </div>
+      <footer>
+        <span>Conteúdo criado para apresentações.</span>
+        <span>Para avaliação formal, procure um(a) psicólogo(a).</span>
+      </footer>
+    </section>
+  </main>
+</div>
+
+<script>
+// ======== ÁREAS ========
+const AREAS = {
+  Clinica: {nome:"Psicologia Clínica",desc:"Foco em avaliação e intervenção psicológica individual ou em grupo, em consultórios e clínicas."},
+  Escolar: {nome:"Psicologia Escolar/Educacional",desc:"Atuação em instituições de ensino, processos de aprendizagem e desenvolvimento."},
+  Organizacional: {nome:"Psicologia Organizacional e do Trabalho",desc:"Gestão de pessoas, clima, seleção, treinamento e saúde ocupacional."},
+  Juridica: {nome:"Psicologia Jurídica",desc:"Intersecção entre Psicologia e Direito: avaliação pericial, depoimento especial, mediação."},
+  Hospitalar: {nome:"Psicologia Hospitalar e da Saúde",desc:"Atendimento em hospitais e unidades de saúde, adesão ao tratamento e apoio a pacientes e familiares."},
+  Social: {nome:"Psicologia Social e Comunitária",desc:"Promoção de cidadania, políticas públicas, vulnerabilidade social e trabalho em rede."},
+  Neuro: {nome:"Neuropsicologia",desc:"Avaliação e reabilitação de funções cognitivas; interface com neurologia e psiquiatria."},
+  Esporte: {nome:"Psicologia do Esporte",desc:"Desempenho, motivação, trabalho com atletas e equipes esportivas."},
+  Transito: {nome:"Psicologia do Trânsito",desc:"Avaliação de condutores, segurança viária e educação para o trânsito."}
+};
+
+// ======== PERGUNTAS (20) ========
+const Q = [
+  {q:"Na sua prática ideal, o que mais te atrai?", a:[["Atender pessoas em sofrimento emocional","Clinica"],["Atuar em escolas apoiando aprendizagem","Escolar"],["Cuidar de clima e desenvolvimento em empresas","Organizacional"],["Realizar avaliações em contextos legais","Juridica"]]},
+  {q:"Você se sente mais à vontade com…", a:[["Casos clínicos e psicopatologia","Clinica"],["Projetos pedagógicos e orientação a docentes","Escolar"],["Indicadores de RH e performance","Organizacional"],["Normas, laudos e pareceres técnicos","Juridica"]]},
+  {q:"Sobre o cenário de trabalho:", a:[["Ambulatório, CAPS ou consultório","Clinica"],["Salas de aula e equipes pedagógicas","Escolar"],["Escritório com times e metas","Organizacional"],["Fóruns, varas ou instituições prisionais","Juridica"]]},
+  {q:"Você curte estudar mais…", a:[["Técnicas de psicoterapia","Clinica"],["Teorias da aprendizagem e desenvolvimento","Escolar"],["Comportamento organizacional e liderança","Organizacional"],["Criminologia e legislação aplicada","Juridica"]]},
+  {q:"Ainda que não seja sua prioridade, você também se interessa por:", a:[["Apoio a pacientes com doenças crônicas","Hospitalar"],["Projetos sociais em territórios vulneráveis","Social"],["Avaliação de funções cognitivas","Neuro"],["Treino mental para atletas","Esporte"]]},
+  {q:"Na rotina você prefere:", a:[["Escutas clínicas e construção de vínculo","Clinica"],["Intervenções com alunos, famílias e professores","Escolar"],["Workshops e treinamentos corporativos","Organizacional"],["Procedimentos técnicos e perícias","Juridica"]]},
+  {q:"Uma competência que você quer desenvolver mais é:", a:[["Entrevista clínica e condução de sessões","Clinica"],["Mediação de conflitos escolares","Escolar"],["Mapeamento de competências","Organizacional"],["Redação de laudos e pareceres","Juridica"]]},
+  {q:"Em saúde, o que te move?", a:[["Psicoterapia breve em enfermarias","Hospitalar"],["Educação em saúde para a comunidade","Social"],["Correlações cérebro-comportamento","Neuro"],["Psicologia do rendimento e foco","Esporte"]]},
+  {q:"Sobre avaliação psicológica:", a:[["Foco em diagnóstico clínico","Clinica"],["Mapear dificuldades de aprendizagem","Escolar"],["Seleção/assessment de pessoas","Organizacional"],["Avaliações periciais e credibilidade do depoimento","Juridica"]]},
+  {q:"Com qual público você tem mais afinidade?", a:[["Adultos e adolescentes em sofrimento psíquico","Clinica"],["Crianças, adolescentes e comunidade escolar","Escolar"],["Colaboradores, lideranças e times","Organizacional"],["Vítimas, réus e famílias em conflito","Juridica"]]},
+  {q:"Se fosse fazer uma especialização agora:", a:[["Terapias baseadas em evidências","Clinica"],["Psicopedagogia e inclusão","Escolar"],["Desenvolvimento organizacional","Organizacional"],["Psicologia forense","Juridica"]]},
+  {q:"Qual desafio te anima mais?", a:[["Acompanhar casos complexos com comorbidades","Clinica"],["Construir projetos anti-bullying","Escolar"],["Elevar engajamento e bem-estar no trabalho","Organizacional"],["Apoiar decisões judiciais com técnica","Juridica"]]},
+  {q:"Em contexto hospitalar, você gostaria de:", a:[["Atuar em UTI/oncologia com famílias","Hospitalar"],["Integrar ações com atenção básica","Social"],["Investigar sequelas cognitivas","Neuro"],["Trabalhar com recuperação de atletas lesionados","Esporte"]]},
+  {q:"Quando pensa em impacto social:", a:[["Ampliar acesso à saúde mental","Clinica"],["Reduzir evasão e melhorar aprendizagem","Escolar"],["Promover trabalho digno e saudável","Organizacional"],["Garantir direitos e justiça","Juridica"]]},
+  {q:"Ferramentas que você gostaria de dominar:", a:[["Entrevista motivacional","Clinica"],["Intervenções baseadas em evidências na escola","Escolar"],["People analytics e pesquisas de clima","Organizacional"],["Provas projetivas/objetivas em perícias","Juridica"]]},
+  {q:"No esporte, você se vê:", a:[["Atendendo demandas clínicas de atletas","Clinica"],["Programas psicoeducativos para equipes escolares","Escolar"],["Projetos de cultura organizacional em clubes","Organizacional"],["Trabalhando com contratos e regulamentos","Juridica"]]},
+  {q:"Sobre trânsito, você…", a:[["Se interessa por impactos clínicos na direção","Clinica"],["Curte campanhas educativas para escolas","Escolar"],["Gosta de indicadores de segurança e risco","Organizacional"],["Quer atuar com avaliação de condutores","Transito"]]},
+  {q:"Num projeto multidisciplinar, seu papel seria:", a:[["Psicoterapeuta do caso","Clinica"],["Articulador escola–família–comunidade","Escolar"],["Facilitador de grupos e lideranças","Organizacional"],["Perito/assistente técnico","Juridica"]]},
+  {q:"Tema de estudo favorito:", a:[["Psicopatologia e intervenção","Clinica"],["Desenvolvimento humano e educação","Escolar"],["Motivação, liderança e cultura","Organizacional"],["Direitos humanos e sistema de justiça","Juridica"]]},
+  {q:"Na prática baseada em evidências, você quer:", a:[["Aprimorar protocolos de terapia","Clinica"],["Mensurar resultados educacionais","Escolar"],["Avaliar ROI de programas de bem-estar","Organizacional"],["Desenvolver pareceres tecnicamente robustos","Juridica"]]},
+];
+
+// ======== ESTADO ========
+let idx = 0;
+const answers = {};
+
+// ======== DOM ========
+const qText = document.getElementById('qText');
+const optionsDiv = document.getElementById('options');
+const progressText = document.getElementById('progressText');
+const percentText = document.getElementById('percentText');
+const bar = document.getElementById('bar');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const skipBtn = document.getElementById('skipBtn');
+const partialBtn = document.getElementById('partialBtn');
+const questionCard = document.getElementById('questionCard');
+const resultSec = document.getElementById('result');
+const answeredN = document.getElementById('answeredN');
+const coveredN = document.getElementById('coveredN');
+const topList = document.getElementById('topList');
+const topExplain = document.getElementById('topExplain');
+const restartBtn = document.getElementById('restartBtn');
+const printBtn = document.getElementById('printBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+
+function render(){
+  const item = Q[idx];
+  qText.textContent = item.q;
+  optionsDiv.innerHTML = '';
+  item.a.forEach((row, i) => {
+    const [text, area] = row;
+    const id = `opt_${idx}_${i}`;
+    const label = document.createElement('label');
+    label.className = 'opt';
+    label.setAttribute('for', id);
+    const input = document.createElement('input');
+    input.type = 'radio'; input.name = 'opt'; input.id = id; input.value = area;
+    input.checked = answers[idx] === area;
+    input.addEventListener('change', () => { answers[idx] = area; });
+    const span = document.createElement('div'); span.textContent = text;
+    label.appendChild(input); label.appendChild(span);
+    optionsDiv.appendChild(label);
+  });
+  const pct = Math.round(((idx+1)/Q.length)*100);
+  progressText.textContent = `Pergunta ${idx+1} de ${Q.length}`;
+  percentText.textContent = `${pct}%`;
+  bar.style.width = pct + '%';
+  prevBtn.disabled = idx === 0;
+  nextBtn.textContent = idx === Q.length-1 ? 'Finalizar' : 'Próxima';
+}
+
+function next(){ if(idx < Q.length-1){ idx++; render(); } else { finish(); } }
+function prev(){ if(idx>0){ idx--; render(); } }
+function skip(){ if(idx < Q.length-1){ idx++; render(); } else { finish(); } }
+
+function finish(){
+  const tally = {};
+  Object.keys(AREAS).forEach(k => tally[k]=0);
+  Object.values(answers).forEach(area => { if(area && tally[area]!=null) tally[area]++; });
+  const pairs = Object.entries(tally).sort((a,b)=> b[1]-a[1]);
+  const top3 = pairs.slice(0,3);
+  questionCard.style.display = 'none';
+  document.getElementById('quiz').style.display = 'none';
+  resultSec.style.display = 'block';
+  const answered = Object.keys(answers).length;
+  answeredN.textContent = answered;
+  const covered = Object.values(answers).reduce((set, a)=>{ if(a) set.add(a); return set; }, new Set()).size;
+  coveredN.textContent = covered;
+  topList.innerHTML='';
+  top3.forEach(([key,score], i)=>{
+    const li = document.createElement('li');
+    li.style.marginBottom='8px';
+    li.innerHTML = `<span class="badge">${i+1}º — ${AREAS[key].nome}</span> &nbsp; <small style="color:var(--muted)">pontos: ${score}</small><br><span style="color:var(--muted)">${AREAS[key].desc}</span>`;
+    topList.appendChild(li);
+  });
+  topExplain.innerHTML = `
+    <div class="questionCard" style="margin-top:8px">
+      <strong>Como interpretar:</strong>
+      <ul style="margin:6px 0 0 18px;color:var(--muted)">
+        <li>Este é um <em>instrumento ilustrativo</em>. Use os resultados como ponto de partida para explorar áreas de interesse.</li>
+        <li>Busque disciplinas optativas, estágios e leituras nas áreas apontadas.</li>
+        <li>Para uma orientação formal, procure um(a) psicólogo(a) habilitado(a).</li>
+      </ul>
+    </div>`;
+}
+
+function restart(){ Object.keys(answers).forEach(k=> delete answers[k]); idx = 0; document.getElementById('quiz').style.display = 'block'; questionCard.style.display = 'block'; resultSec.style.display = 'none'; render(); }
+
+function downloadSelf(){ const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'teste_vocacional_psicologia.html'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
+
+prevBtn.addEventListener('click', prev);
+nextBtn.addEventListener('click', next);
+skipBtn.addEventListener('click', skip);
+partialBtn.addEventListener('click', finish);
+restartBtn.addEventListener('click', restart);
+printBtn.addEventListener('click', () => window.print());
+downloadBtn.addEventListener('click', downloadSelf);
+
+render();
+</script>
+</body>
+</html>
